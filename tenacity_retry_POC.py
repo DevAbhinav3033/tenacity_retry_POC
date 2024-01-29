@@ -5,7 +5,7 @@ from mysql.connector import errorcode
 from tenacity import *
 from attempts import log_attempt_number
 from dotenv import load_dotenv
-import logging
+
 
 # Dotenv configuration for local env file
 dotenv_path = join(dirname(__file__), '.env')
@@ -24,7 +24,7 @@ try:
   
 
   # Retrying mechanism to stop after 3 attempts and also maintain a wait of 1,2,3 sec intervals
-  @retry(stop=stop_after_attempt(3),wait=wait_incrementing(start=1,increment=1),after=log_attempt_number)
+  @retry(stop=stop_after_attempt(4),wait=wait_incrementing(start=1,increment=1),after=log_attempt_number)
   def fun():
     # raise Exception
     # Fetch data from central db using cursor
@@ -42,12 +42,8 @@ try:
     
     
   try:
-    logging.basicConfig(filename='myapp.log',filemode='w',format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s',
-        datefmt='%d-%m-%Y:%H:%M:%S',level=logging.INFO)
-    logging.info('Retries Start')
     fun()
   except Exception as e:
-    logging.info('Retries Finished')
     print(e)
 # Code for handling the DB connection errors
 except mysql.connector.Error as err:
